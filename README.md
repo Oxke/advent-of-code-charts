@@ -1,3 +1,8 @@
+### My modifications
+
+I have made some tiny modifications in the html just because I didn't like a couple things about the original one,
+like buttons being too buttony and removed the icons, since they dot't match the theme of AoC.
+
 # Advent of Code Charts
 
 This is an [unofficial](#license-and-affiliation-disclaimer) small hacked-up set of charts for a private leaderboard for [Advent of Code](https://adventofcode.com/).

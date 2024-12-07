@@ -46,9 +46,9 @@
     const largeLeaderboardCutOff = Math.trunc((window.innerWidth < 1600 ? 25 : 40) / (isResponsivenessToggled() ? 2 : 1));
 
     const pointsOverTimeType = [
-        "(◉ POINTS | ◎ percentage | ◎ with potential)",
-        "(◎ points | ◉ PERCENTAGE | ◎ with potential)",
-        "(◎ points | ◎ percentage | ◉ WITH POTENTIAL)",
+        "[points] percentage with potential",
+        "points [percentage] with potential",
+        "points percentage [with potential]",
     ];
 
     let presumedLoggedInUserName = null;
@@ -163,13 +163,13 @@
      *   stars: number;
      *   id: string;
      * }} IMemberJson
-     * 
+     *
      * @typedef {{
-     *   event: string, 
-     *   owner_id: string, 
+     *   event: string,
+     *   owner_id: string,
      *   members: Record<string, IMemberJson>
      * }} IJson
-     * 
+     *
      * @typedef {{
      *   memberId: string;
      *   dayNr: number;
@@ -189,7 +189,7 @@
      *   awardedPodiumPlace: number;
      *   awardedPodiumPlaceFirstPuzzle: number;
      * }} IStar
-     * 
+     *
      * @typedef {Omit<IMemberJson, "stars"> & {
      *   isLoggedInUser: boolean;
      *   radius: number;
@@ -207,7 +207,7 @@
      *   color: string;
      *   colorMuted: string;
      * }} IMember
-     * 
+     *
      * @typedef {{
      *   dayNr: number;
      *   dayKey: string;
@@ -215,9 +215,9 @@
      *   member: IMember;
      *   points: number;
      * }} IDelta
-     * 
+     *
      * @typedef {ReturnType<transformRawAocJson>} IData;
-     * 
+     *
      * @typedef {{
      *   owner_id: string,
      *   maxDay: number,
@@ -231,14 +231,14 @@
      *   loggedInUserIsPresumablyKnown,
      *   isLargeLeaderboard,
      *  }} IAppData
-     * 
+     *
      * @typedef {Record<number, {
      *   dayNr: number;
      *   podium: IStar[];
      *   podiumFirstPuzzle: IStar[];
      * }>} IDaysMap
      */
-    
+
     /**
      * @param {IJson} json
      * @returns {IAppData}
@@ -248,7 +248,7 @@
         let /** @type {IDelta[]} */ deltas = [];
         let year = parseInt(json.event);
         let loggedInUserIsPresumablyKnown = false;
-        
+
         let n_members = Object.keys(json.members).length;
         let isLargeLeaderboard = n_members > largeLeaderboardCutOff;
 
@@ -373,7 +373,7 @@
 
         /** @type {number} */
         let maxDay = Math.max.apply(Math, stars.filter(s => s.starNr === 2).map(s => s.dayNr))
-        
+
         /** @type {IDaysMap} */
         let days = {};
 
@@ -592,7 +592,7 @@
         return memberStar.getStarMoment.local().format("HH:mm:ss YYYY-MM-DD") + " (local time)";
     }
 
-    /** 
+    /**
      * @returns {Promise<IAppData>}
      */
     function getLeaderboardJson() {
@@ -609,7 +609,7 @@
         // 2. Apparently we can use real calls...
         else {
             let anchor = /** @type {HTMLAnchorElement} */ (document.querySelector("#api_info a"));
-            
+
             if (!!anchor) {
                 let url = anchor.href;
 
@@ -634,7 +634,7 @@
                 return fetch(url, { credentials: "same-origin" })
                     .then(data => data.json())
                     .then(json => updateCache(json))
-                    .then(() => getCache().data) // Workaround for FireFox error with "Xray Vision" / "XrayWrapper", see https://github.com/jeroenheijmans/advent-of-code-charts/issues/105 
+                    .then(() => getCache().data) // Workaround for FireFox error with "Xray Vision" / "XrayWrapper", see https://github.com/jeroenheijmans/advent-of-code-charts/issues/105
                     .then(json => transformRawAocJson(json));
             } else {
                 console.info("Could not find anchor to JSON feed, assuming no charts can be plotted here.");
@@ -798,7 +798,7 @@
             this.medals = this.wrapper.appendChild(document.createElement("div"));
             this.perDayLeaderBoard = this.wrapper.appendChild(document.createElement("div"));
             this.graphs = this.wrapper.appendChild(document.createElement("div"));
-            
+
             this.wrapper.id = "aoc-extension";
             this.medals.id = "aoc-extension-medals";
             this.perDayLeaderBoard.id = "aoc-extension-perDayLeaderBoard";
@@ -843,7 +843,7 @@
                     break;
 
                 case null:
-                default: 
+                default:
                     document.body.classList.remove('aoc-extension-with-full-screen-overlay');
                     break;
             }
@@ -876,65 +876,26 @@
 
         loadControlButtons(/** @type {IAppData} */ data) {
             const cacheBustLink = this.controls.appendChild(document.createElement("a"));
-            cacheBustLink.innerText = "🔄 Clear Charts Cache";
+            cacheBustLink.innerText = "[Clear Charts Cache]";
             cacheBustLink.style.cursor = "pointer";
-            cacheBustLink.style.background = aocColors.tertiary;
-            cacheBustLink.style.display = "inline-block";
             cacheBustLink.style.padding = "2px 8px";
-            cacheBustLink.style.border = `1px solid ${aocColors.secondary}`;
             cacheBustLink.addEventListener("click", () => clearCache());
 
             const responsiveToggleLink = this.controls.appendChild(document.createElement("a"));
-            responsiveToggleLink.innerText = (isResponsivenessToggled() ? "✅" : "❌") + " Graphs in 2x2 grid";
+            responsiveToggleLink.innerText = "[Graphs in " + (isResponsivenessToggled() ? "2×2" : "4×1") + " grid]";
             responsiveToggleLink.title = "Trigger side-by-side graphs if the viewport is wider than 1800px";
             responsiveToggleLink.style.cursor = "pointer";
-            responsiveToggleLink.style.background = aocColors.tertiary;
-            responsiveToggleLink.style.display = "inline-block";
             responsiveToggleLink.style.padding = "2px 8px";
-            responsiveToggleLink.style.border = `1px solid ${aocColors.secondary}`;
             responsiveToggleLink.style.marginLeft = "8px";
             responsiveToggleLink.addEventListener("click", () => toggleResponsiveness());
 
             const colorToggleLink = this.controls.appendChild(document.createElement("a"));
-            colorToggleLink.innerText = `🎨 Palette: ${getCurrentGraphColorStyle()}`;
+            colorToggleLink.innerText = `[Palette: ${getCurrentGraphColorStyle()}]`;
             colorToggleLink.title = "Cycle through different graph color styles";
             colorToggleLink.style.cursor = "pointer";
-            colorToggleLink.style.background = aocColors.tertiary;
-            colorToggleLink.style.display = "inline-block";
             colorToggleLink.style.padding = "2px 8px";
-            colorToggleLink.style.border = `1px solid ${aocColors.secondary}`;
             colorToggleLink.style.marginLeft = "8px";
             colorToggleLink.addEventListener("click", () => toggleCurrentGraphColorStyle());
-
-            const fullScreenButtons = this.controls.appendChild(document.createElement("div"));
-            fullScreenButtons.innerText = "| Go full screen with: ";
-            fullScreenButtons.title = "Useful for example to show a permanent leaderboard in your office hallway on a monitor.";
-            fullScreenButtons.className = "aoc-extension-full-screen-buttons";
-
-            const medalsButton = document.createElement("a");
-            medalsButton.innerText = "🥇";
-            medalsButton.className = "aoc-extension-full-screen-button";
-            medalsButton.addEventListener("click", () => { 
-                setFullScreenSubject("medals");
-                this.refreshFullScreenSetup();
-            });
-            fullScreenButtons.appendChild(medalsButton);
-            const perDayLeaderBoardButton = document.createElement("a");
-            perDayLeaderBoardButton.innerText = "📆";
-            perDayLeaderBoardButton.className = "aoc-extension-full-screen-button";
-            perDayLeaderBoardButton.addEventListener("click", () => { 
-                setFullScreenSubject("perDayLeaderBoard");
-                this.refreshFullScreenSetup();
-            });
-            fullScreenButtons.appendChild(perDayLeaderBoardButton);
-            const graphsButton = document.createElement("a");
-            graphsButton.innerText = "📈";
-            graphsButton.className = "aoc-extension-full-screen-button";
-            graphsButton.addEventListener("click", () => { 
-                setFullScreenSubject("graphs");
-                this.refreshFullScreenSetup();
-            });
-            fullScreenButtons.appendChild(graphsButton);
 
             return data;
         }
@@ -957,7 +918,7 @@
                 noDataText.style.color = aocColors["secondary"];
                 return data;
             }
-            
+
             if (displayDay !== "overview") {
                 // taking the min to avoid going out of bounds for current year
                 displayDay = displayDay ? Math.min(parseInt(displayDay), data.maxDay) : data.maxDay;
@@ -1007,7 +968,7 @@
                 tablePerDay["overview"] = deltaLeaderBoard;
 
                 deltaLeaderBoard.title = "Delta Leaderboard";
-    
+
                 let table = document.createElement("table");
                 table.style.borderCollapse = "collapse";
                 table.style.fontSize = "16px";
@@ -1017,7 +978,7 @@
                     td.innerHTML = "&nbsp;";
                     return td;
                 }
-    
+
                 function createHeaderCell(text, color = "inherit", title = "") {
                     const th = document.createElement("th");
                     th.innerText = text;
@@ -1028,7 +989,7 @@
                     th.style.cursor = "pointer";
                     return th;
                 }
-    
+
                 {
                     // table header
                     let tr = table.appendChild(document.createElement("tr"));
@@ -1064,9 +1025,9 @@
                     let tdStars = tr.appendChild(createCell(member.stars.length));
                     let percent = member.stars.length / 50 * 100;
                     tdStars.style.background = member.isLoggedInUser
-                        ? aocColors["highlight"] 
+                        ? aocColors["highlight"]
                         : `linear-gradient(to right, rgb(255,255,255,0.05) 0%, rgb(255,255,255,0.05) ${percent}%, transparent ${percent}%, transparent 100%)`;
-                    
+
                     tr.appendChild(createDividerCell());
                     tr.appendChild(createCell(member.deltaPointsTotal, bgColor));
                     tr.appendChild(createDividerCell());
@@ -1083,7 +1044,7 @@
                         td.style.background = `rgba(255,255,255,${delta ? (delta.points * delta.points) / divider / 10  : 0})`;
                     }
                 }
-    
+
                 deltaLeaderBoard.appendChild(table);
 
                 return deltaLeaderBoard;
@@ -1293,7 +1254,7 @@
                     tablePerDay[t].style.display = "none";
                 }
                 tablePerDay[day].style.display = "table";
-                
+
                 for (const a in anchorPerDay) {
                     anchorPerDay[a].style.color = "";
                     anchorPerDay[a].style.textShadow = "";
@@ -1322,7 +1283,7 @@
             // are present in the fallback fonts.
             // See also: https://github.com/jeroenheijmans/advent-of-code-charts/issues/56
             const medalFontFamily = '"Source Code Pro", monospace, serif, sans-serif, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"';
-            
+
             this.medals.title =
               (isShowAllToggled()
                 ? ''
@@ -1333,13 +1294,13 @@
             titleElement.style.fontFamily = "Helvetica, Arial, sans-serif";
             titleElement.style.fontWeight = "normal";
             titleElement.style.marginBottom = "4px";
-            
+
             const showAllToggleLink = titleElement.appendChild(document.createElement("a"));
-            showAllToggleLink.innerText = isShowAllToggled() ? "🎄 Showing all participants" : "🥇 Showing only medalists";
+            showAllToggleLink.innerText = isShowAllToggled() ? "[showing all participants]" : "[showing only medalists]";
             showAllToggleLink.title = "Toggle between showing only medalists or all participants";
             showAllToggleLink.style.cursor = "pointer";
             showAllToggleLink.addEventListener("click", () => toggleShowAll());
-            
+
             if (data.maxDay <= 0) {
                 let noDataText = this.medals.appendChild(document.createElement("p"));
                 noDataText.innerText = "No data available yet.";
@@ -1498,7 +1459,7 @@
                                 const day = Math.floor(Number(item.parsed?.x || 0) + 0.5);
                                 const star = Number(item.parsed?.x || 0) < day ? 1 : 2;
                                 const mins = item.parsed?.y;
-                                
+
                                 return `Day ${day} star ${star} took ${mins} minutes to complete`;
                             },
                         },
@@ -1632,7 +1593,7 @@
                             }))
                             .map((day,i) => ({
                                 ...day,
-                                points: day.stars.length === 2 
+                                points: day.stars.length === 2
                                     ? day.points
                                     : day.stars.length === 1
                                         ? (day.points + availablePoints[1][i])
@@ -1663,10 +1624,10 @@
                     radius: m.radius,
                     pointStyle: m.pointStyle,
                     backgroundColor: data.isLargeLeaderboard && !m.isLoggedInUser ? m.colorMuted : m.color,
-                    data: graphType !== 0 
+                    data: graphType !== 0
                     ? maxPointsPerDay
-                        .map((max, i) => ({ 
-                            dayNr: i+1, 
+                        .map((max, i) => ({
+                            dayNr: i+1,
                             ...(days.get(i+1) ?? { stars: [], points:0 })
                         }))
                         .map((day, i, days) => ({
@@ -1708,7 +1669,7 @@
                         }
                     }
                 }],
-                options: new ChartOptions(data, `Points per Day - 🖱️ ${pointsOverTimeType[graphType]}`)
+                options: new ChartOptions(data, `Points per Day - ${pointsOverTimeType[graphType]}`)
                     .withTooltips({
                         callbacks: {
                             afterLabel: (item) => {
